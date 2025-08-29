@@ -1,0 +1,6 @@
+{
+  "name": "Vendhan",
+  "description": "A React application for managing employees, including authentication, dashboards, and profile management.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

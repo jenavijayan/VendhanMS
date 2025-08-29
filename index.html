@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'theme-primary': '#047857', // emerald-700
+            'theme-secondary': '#4338ca', // indigo-700
+            'theme-accent': '#f0f9ff', // sky-50
+            'theme-primary-text': '#ffffff',
+            'theme-secondary-text': '#ffffff',
+            'theme-accent-text': '#374151', // gray-700
+            // Notebook themes
+            'notebook-classic-bg': '#fefcf6', // A slightly off-white, creamy paper color
+            'notebook-classic-text': '#3a352f', // A dark, brownish-black for text
+            'notebook-pastel-bg': '#fde2e4', // A soft pastel pink background
+            'notebook-pastel-text': '#5e5e5e', // A gentle dark gray for text
+            'notebook-ocean-bg': '#e0f7fa', // A light cyan, ocean-like background
+            'notebook-ocean-text': '#004d40', // A deep teal for text
+            'notebook-forest-bg': '#e8f5e9', // A light green, forest-floor background
+            'notebook-forest-text': '#1b5e20', // A dark forest green for text
+          }
+        }
+      },
+      safelist: [
+        { pattern: /bg-(theme-primary|theme-secondary|theme-accent|notebook-classic-bg|notebook-pastel-bg|notebook-ocean-bg|notebook-forest-bg)/ },
+        { pattern: /text-(theme-primary-text|theme-secondary-text|theme-accent-text|notebook-classic-text|notebook-pastel-text|notebook-ocean-text|notebook-forest-text)/ },
+        { pattern: /from-(theme-accent)/ },
+        { pattern: /to-(theme-accent)/ },
+        { pattern: /ring-(theme-primary|theme-secondary)/ },
+        { pattern: /ring-offset-(theme-primary|white)/ },
+        { pattern: /border-(theme-primary|theme-secondary|red-400|green-400|gray-300|blue-400|blue-200|purple-200|indigo-200|indigo-500)/ },
+        { pattern: /text-(red|green|blue|purple|yellow|gray|indigo|orange|white|black|red-600|green-800|yellow-800|gray-800|blue-800|purple-800)/, variants: ['hover'] },
+        { pattern: /bg-(red|green|blue|purple|yellow|gray|indigo|orange|white|black|red-100|green-100|yellow-100|gray-100|blue-100|purple-100|blue-500|orange-500)/, variants: ['hover'] },
+      ]
+    }
+  </script>
+  <script type="importmap">
+  {
+    "imports": {
+      "react/": "https://esm.sh/react@^19.1.0/",
+      "react": "https://esm.sh/react@^19.1.0",
+      "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+      "react-router-dom": "https://esm.sh/react-router-dom@^7.7.0",
+      "@heroicons/react/": "https://esm.sh/@heroicons/react@^2.2.0/",
+      "html2canvas": "https://esm.sh/html2canvas@^1.4.1"
+    }
+  }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    /* Add a little animation for page loads */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+    /* Tailwind Aspect Ratio Plugin Stub */
+    .aspect-w-16 {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    .aspect-h-9 {
+        /* No specific styles needed here as padding-bottom handles height */
+    }
+    .aspect-w-16 > iframe {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+    }
+
+    /* --- Org Chart Styles --- */
+    .org-chart {
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+      overflow-x: auto;
+      min-width: 100%;
+    }
+    .org-chart ul {
+      padding-top: 20px;
+      position: relative;
+      transition: all 0.5s;
+      white-space: nowrap; /* Prevent wrapping of list items */
+    }
+    .org-chart li {
+      display: inline-block; /* Changed from float */
+      vertical-align: top; /* Align nodes from the top */
+      text-align: center;
+      list-style-type: none;
+      position: relative;
+      padding: 20px 5px 0 5px;
+      transition: all 0.5s;
+    }
+    .org-chart li::before, .org-chart li::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 50%;
+      border-top: 2px solid #a1a1aa; /* zinc-400 */
+      width: 50%;
+      height: 20px;
+    }
+    .org-chart li::after {
+      right: auto;
+      left: 50%;
+      border-left: 2px solid #a1a1aa;
+    }
+    .org-chart li:only-child::after, .org-chart li:only-child::before {
+      display: none;
+    }
+    .org-chart li:only-child {
+      padding-top: 0;
+    }
+    .org-chart li:first-child::before, .org-chart li:last-child::after {
+      border: 0 none;
+    }
+    .org-chart li:last-child::before {
+      border-right: 2px solid #a1a1aa;
+      border-radius: 0 5px 0 0;
+    }
+    .org-chart li:first-child::after {
+      border-radius: 5px 0 0 0;
+    }
+    .org-chart ul ul::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      border-left: 2px solid #a1a1aa;
+      width: 0;
+      height: 20px;
+    }
+    .org-chart li .node-card {
+      border: 1px solid #d4d4d8; /* zinc-300 */
+      padding: 1rem;
+      text-decoration: none;
+      background-color: white;
+      display: inline-block;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+      min-width: 160px;
+    }
+    .org-chart li .node-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
